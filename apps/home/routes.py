@@ -2,22 +2,20 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+import traceback
 
 from apps.home import blueprint
 from flask import render_template, request
-from flask_login import login_required
 from jinja2 import TemplateNotFound
 
 
-@blueprint.route('/index')
-@login_required
+@blueprint.route('/')
 def index():
 
-    return render_template('home/index.html', segment='index')
+    return render_template('home/dashboard.html', segment='dashboard')
 
 
 @blueprint.route('/<template>')
-@login_required
 def route_template(template):
 
     try:
@@ -35,6 +33,7 @@ def route_template(template):
         return render_template('home/page-404.html'), 404
 
     except:
+        traceback.print_exc()
         return render_template('home/page-500.html'), 500
 
 
