@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4">
+    <a href="." class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <img class="icon icon-xxs me-2" alt="Refresh icon" src="/static/assets/img/refresh.svg">
+        Refresh
+    </a>
+</div>
+<div class="card border-0 shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light">
+                <tr>
+                    <th class="border-0 rounded-start">Slot</th>
+                    <th class="border-0">Module Name</th>
+                    <th class="border-0">Sensor</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0 rounded-end">Last Updated</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for module in modules %}
+                    {% for sensor, sensor_idx in module['sensors'] %}
+                        <tr>
+                            <td class="border-0">
+                                {% if sensor_idx == 0 %}
+                                    {{ module['slot'] }}
+                                {% endif %}
+                            </td>
+                            <td class="border-0">
+                                {% if sensor_idx == 0 %}
+                                    <a href="/path" class="d-flex align-items-center">
+                                        <img class="me-2 image image-small" alt="Image placeholder"
+                                             src="/static/assets/img/lego.svg">
+                                        <div><span class="h6">{{ module['name'] }}</span></div>
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="border-0">
+                                {{ sensor }}
+                            </td>
+                            <td class="border-0 fw-bold text-success">
+                                Running
+                            </td>
+                            <td class="border-0">
+                                5 seconds ago
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

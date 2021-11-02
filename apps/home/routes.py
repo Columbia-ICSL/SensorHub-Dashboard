@@ -11,13 +11,26 @@ from jinja2 import TemplateNotFound
 
 @blueprint.route('/')
 def index():
-
-    return render_template('home/dashboard.html', segment='dashboard')
+    slot1 = {
+        'slot': 1,
+        'name': 'Air Quality',
+        'sensors': zip(['PM Sensor'], range(1))
+    }
+    slot2 = {
+        'slot': 2,
+        'name': 'Wind',
+        'sensors': zip(['Wind Speed Sensor'], range(1))
+    }
+    slot3 = {
+        'slot': 3,
+        'name': 'Multi-purpose Air Sensor',
+        'sensors': zip(['CO2 Sensor', 'Temperature & Humidity Sensor', 'Air Pressure Sensor'], range(3))
+    }
+    return render_template('dashboard/main.html', segment="dashboard", modules=[slot1, slot2, slot3])
 
 
 @blueprint.route('/<template>')
 def route_template(template):
-
     try:
 
         if not template.endswith('.html'):
@@ -39,7 +52,6 @@ def route_template(template):
 
 # Helper - Extract current page name from request
 def get_segment(request):
-
     try:
 
         segment = request.path.split('/')[-1]
