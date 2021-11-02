@@ -10,7 +10,7 @@ from jinja2 import TemplateNotFound
 
 
 @blueprint.route('/')
-def index():
+def dashboard():
     slot1 = {
         'slot': 1,
         'name': 'Air Quality',
@@ -27,6 +27,11 @@ def index():
         'sensors': zip(['CO2 Sensor', 'Temperature & Humidity Sensor', 'Air Pressure Sensor'], range(3))
     }
     return render_template('dashboard/main.html', segment="dashboard", modules=[slot1, slot2, slot3])
+
+
+@blueprint.route('/data')
+def data():
+    return render_template('data/main.html', segment="data")
 
 
 @blueprint.route('/<template>')
