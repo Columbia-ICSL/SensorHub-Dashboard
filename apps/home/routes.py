@@ -34,6 +34,11 @@ def data():
     return render_template('data/main.html', segment="data")
 
 
+@blueprint.route('/setting/<sensor_name>')
+def sensor_setting(sensor_name):
+    return render_template('setting/settings.html', sensor={'name': sensor_name})
+
+
 @blueprint.route('/<template>')
 def route_template(template):
     try:
