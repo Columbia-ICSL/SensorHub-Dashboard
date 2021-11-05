@@ -34,9 +34,20 @@ def data():
     return render_template('data/main.html', segment="data")
 
 
-@blueprint.route('/setting/<sensor_name>')
-def sensor_setting(sensor_name):
-    return render_template('setting/settings.html', sensor={'name': sensor_name})
+@blueprint.route('/setting/<module_name>')
+def sensor_setting(module_name):
+    module_info = {
+        'name': module_name,
+        'settings': {
+            'Temperature Humidity': {
+                'Samples per second': 2
+            },
+            'CO2': {
+                'Samples per second': 1
+            }
+        }
+    }
+    return render_template('setting/main.html', module=module_info)
 
 
 @blueprint.route('/<template>')

@@ -1,0 +1,16 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} {{ module['name'] }} Settings {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    {% include "setting/top-nav.html" %}
+    {% include "setting/setting-list.html" %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
