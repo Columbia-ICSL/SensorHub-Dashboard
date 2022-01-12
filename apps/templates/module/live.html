@@ -1,39 +1,27 @@
-<div class="col">
-    {% for sensor, setting in module['settings'].items() %}
-        <div class="card card-body border-0 shadow mb-4">
-            <h2 class="h5 mb-4">{{ sensor }}</h2>
-            <form>
-                {% for setting_name, value in setting.items() %}
-                    <div class="col-md-6 mb-3">
-                        <div>
-                            <label for="{{ setting_name }}">{{ setting_name }}</label>
-                            <input class="form-control" id="{{ setting_name }}" type="text" value="{{ value }}"
-                                   required>
-                        </div>
+<div class="container">
+    <div class="row justify-content-center">
+        {% for sensor in module['sensors'] %}
+            <div class="col-auto">
+                <div class="card border-0 shadow mb-2" style="width: 25rem;" id="card_{{ sensor[0] }}">
+                    <div class="card-body d-flex flex-column" style="padding: 8px;">
+                        <span class="h4">{{ sensor }}</span>
+                        <span class="h4 text-muted" id="placeholder_{{ module['name'] + '.' + sensor }}">No Data</span>
+                        <canvas id="plot_{{ module['name'] + '.' + sensor }}" style="display: none;
+                        width:23rem !important; height:6rem !important;"></canvas>
+                        {# id: <Sensor ID> #}
                     </div>
-                {% endfor %}
-                <div class="col-md-6 mb-3">
-                    <label for="gender">Select</label>
-                    <select class="form-select mb-0" id="gender" aria-label="Gender select example">
-                        <option selected>Select</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                    </select>
                 </div>
-                <div class="mt-3">
-                    <button class="btn btn-gray-800 mt-2 animate-up-2" type="submit">Save all</button>
-                </div>
-            </form>
-        </div>
-
-    {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
         const source = new EventSource("{{ url_for('sse.stream') }}");
-        {% for sensor in module['settings'].keys() %}
+        {% for sensor in module['sensors'] %}
+            console.log("Subscribed to data source {{ module['name'] + '.' + sensor }}")
             source.addEventListener("{{ module['name'] + '.' + sensor }}", function(event) {
                 const data = JSON.parse(event.data)
                 console.log(data)
