@@ -108,7 +108,7 @@
                 console.log("Subscribed to data source {{ module['name'] + '.' + sensor + '.' + col }}");
                 source.addEventListener("{{ module['name'] + '.' + sensor + '.' + col }}", function(event) {
                     const data = JSON.parse(event.data);
-                    console.log(data);
+                    // console.log(data);
 
                     displayPlot("{{ sensor + '.' + col }}");
                     updatePlot("{{ sensor + '.' + col }}", data);
