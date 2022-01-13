@@ -8,7 +8,6 @@
                         <span class="h4 text-muted" id="placeholder_{{ module['name'] + '.' + sensor }}">No Data</span>
                         <canvas id="plot_{{ module['name'] + '.' + sensor }}" style="display: none;
                         width:23rem !important; height:6rem !important;"></canvas>
-                        {# id: <Sensor ID> #}
                     </div>
                 </div>
             </div>
@@ -19,13 +18,91 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
+        // Init plots >>
+        let sensors = {{ module['sensors']|safe }};
+        let charts = {};
+        let configs = {};
+
+        sensors.forEach(function (sensor) {
+            const context = document.getElementById(`plot_{{ module['name'] }}.${sensor}`).getContext('2d');
+            configs[sensor] = {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: `${sensor}`,
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: [],
+                        fill: false,
+                    }],
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Time'
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: false,
+                                labelString: 'Value'
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            };
+            charts[sensor] = new Chart(context, configs[sensor]);
+        });
+        // << Init plots
+
+        function displayPlot(sensor) {
+            document.getElementById(`placeholder_{{ module['name']}}.${sensor}`).style.display = "none";
+            document.getElementById(`plot_{{ module['name'] }}.${sensor}`).style.display = "block";
+        }
+
+        function updatePlot(sensor, data) {
+            let config = configs[sensor];
+            let x_data = config.data.labels
+            let y_data = config.data.datasets[0].data
+
+            x_data = x_data.concat(data['time'])
+            y_data = y_data.concat(data['data'])
+            const x_data_last = x_data[x_data.length - 1]
+
+            // Keep 5 seconds of historical data
+            const cut_idx = x_data.findIndex(t => t > x_data_last - 5)
+            x_data = x_data.slice(cut_idx)
+            y_data = y_data.slice(cut_idx)
+
+            config.data.labels = x_data
+            config.data.datasets[0].data = y_data
+
+            {#config.options.scales.yAxes[0].ticks.suggestedMin = -1#}
+            {#config.options.scales.yAxes[0].ticks.suggestedMax = 1#}
+            charts[sensor].update()
+        }
+
+        // Subscribe to live data stream >>
         const source = new EventSource("{{ url_for('sse.stream') }}");
         {% for sensor in module['sensors'] %}
-            console.log("Subscribed to data source {{ module['name'] + '.' + sensor }}")
+            console.log("Subscribed to data source {{ module['name'] + '.' + sensor }}");
             source.addEventListener("{{ module['name'] + '.' + sensor }}", function(event) {
-                const data = JSON.parse(event.data)
-                console.log(data)
+                const data = JSON.parse(event.data);
+                console.log(data);
+
+                displayPlot("{{ sensor }}");
+                updatePlot("{{ sensor }}", data);
             });
         {% endfor %}
+        // << Subscribe to live data stream
     });
 </script>
