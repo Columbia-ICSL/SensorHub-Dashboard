@@ -1,16 +1,18 @@
 <div class="container">
     <div class="row justify-content-center">
         {% for sensor in module['sensors'] %}
-            <div class="col-auto">
-                <div class="card border-0 shadow mb-2" style="width: 25rem;" id="card_{{ sensor[0] }}">
-                    <div class="card-body d-flex flex-column" style="padding: 8px;">
-                        <span class="h4">{{ sensor }}</span>
-                        <span class="h4 text-muted" id="placeholder_{{ module['name'] + '.' + sensor }}">No Data</span>
-                        <canvas id="plot_{{ module['name'] + '.' + sensor }}" style="display: none;
-                        width:23rem !important; height:6rem !important;"></canvas>
+            {% for col in module['sensor_cols'][sensor] %}
+                <div class="col-auto">
+                    <div class="card border-0 shadow mb-2" style="width: 25rem;" id="card_{{ sensor[0] }}">
+                        <div class="card-body d-flex flex-column" style="padding: 8px;">
+                            <span class="h4">{{ col }}</span>
+                            <span class="h4 text-muted" id="placeholder_{{ module['name'] + '.' + sensor + '.' + col }}">No Data</span>
+                            <canvas id="plot_{{ module['name'] + '.' + sensor + '.' + col }}" style="display: none;
+                            width:23rem !important; height:6rem !important;"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         {% endfor %}
     </div>
 </div>
@@ -18,19 +20,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Init plots >>
-        let sensors = {{ module['sensors']|safe }};
-        let charts = {};
-        let configs = {};
-
-        sensors.forEach(function (sensor) {
-            const context = document.getElementById(`plot_{{ module['name'] }}.${sensor}`).getContext('2d');
-            configs[sensor] = {
+        function getPlotConfig(label) {
+            return {
                 type: 'line',
                 data: {
                     labels: [],
                     datasets: [{
-                        label: `${sensor}`,
+                        label: label,
                         backgroundColor: 'rgb(255, 99, 132)',
                         borderColor: 'rgb(255, 99, 132)',
                         data: [],
@@ -59,18 +55,32 @@
                         display: false
                     }
                 }
-            };
-            charts[sensor] = new Chart(context, configs[sensor]);
+            }
+        }
+
+        // Init plots >>
+        let sensors = {{ module['sensors']|safe }};
+        let sensor_cols = {{ module['sensor_cols']|tojson|safe }};
+        let charts = {};
+        let configs = {};
+
+        sensors.forEach(function (sensor) {
+            sensor_cols[sensor].forEach(function (col) {
+                let identifier = `${sensor}.${col}`
+                const context = document.getElementById(`plot_{{ module['name'] }}.${identifier}`).getContext('2d');
+                configs[identifier] = getPlotConfig(`${col}`);
+                charts[identifier] = new Chart(context, configs[identifier]);
+            });
         });
         // << Init plots
 
-        function displayPlot(sensor) {
-            document.getElementById(`placeholder_{{ module['name']}}.${sensor}`).style.display = "none";
-            document.getElementById(`plot_{{ module['name'] }}.${sensor}`).style.display = "block";
+        function displayPlot(identifier) {
+            document.getElementById(`placeholder_{{ module['name']}}.${identifier}`).style.display = "none";
+            document.getElementById(`plot_{{ module['name'] }}.${identifier}`).style.display = "block";
         }
 
-        function updatePlot(sensor, data) {
-            let config = configs[sensor];
+        function updatePlot(identifier, data) {
+            let config = configs[identifier];
             let x_data = config.data.labels
             let y_data = config.data.datasets[0].data
 
@@ -88,20 +98,22 @@
 
             {#config.options.scales.yAxes[0].ticks.suggestedMin = -1#}
             {#config.options.scales.yAxes[0].ticks.suggestedMax = 1#}
-            charts[sensor].update()
+            charts[identifier].update()
         }
 
         // Subscribe to live data stream >>
         const source = new EventSource("{{ url_for('sse.stream') }}");
         {% for sensor in module['sensors'] %}
-            console.log("Subscribed to data source {{ module['name'] + '.' + sensor }}");
-            source.addEventListener("{{ module['name'] + '.' + sensor }}", function(event) {
-                const data = JSON.parse(event.data);
-                console.log(data);
+            {% for col in module['sensor_cols'][sensor] %}
+                console.log("Subscribed to data source {{ module['name'] + '.' + sensor + '.' + col }}");
+                source.addEventListener("{{ module['name'] + '.' + sensor + '.' + col }}", function(event) {
+                    const data = JSON.parse(event.data);
+                    console.log(data);
 
-                displayPlot("{{ sensor }}");
-                updatePlot("{{ sensor }}", data);
-            });
+                    displayPlot("{{ sensor + '.' + col }}");
+                    updatePlot("{{ sensor + '.' + col }}", data);
+                });
+            {% endfor %}
         {% endfor %}
         // << Subscribe to live data stream
     });
