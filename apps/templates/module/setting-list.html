@@ -112,7 +112,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
-        let sensors = {{ module['sensors']|safe }};
+        let sensors = {{ module['settings'].keys()|list|safe }};
         let sensor_form = {};
         sensors.forEach(function (sensor) {
             sensor_form[sensor] = document.getElementById(`form_${sensor}`);
