@@ -123,6 +123,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Module-Name': "{{ module['name'] }}",
                         'Sensor-Name': sensor
                     },
                     body: JSON.stringify(Object.fromEntries(formData))
