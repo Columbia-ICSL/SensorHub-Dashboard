@@ -1,0 +1,34 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="/static/assets/vendor/sweetalert2/dist/sweetalert2.all.min.js"></script>
+<script>
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-primary',
+            cancelButton: 'btn btn-gray'
+        },
+        buttonsStyling: false
+    });
+
+    // Subscribe to events >>
+    const source = new EventSource("{{ url_for('sse.stream') }}");
+    console.log("Subscribed to events");
+    source.addEventListener("dashboard_events", function (event) {
+        const data = JSON.parse(event.data);
+        // console.log(data);
+        data['action'].forEach(function (this_action) {
+            if (this_action === 'alert_then_refresh') {
+                swalWithBootstrapButtons.fire({
+                    icon: 'success',
+                    title: 'Daughterboards changed',
+                    text: data['alert'],
+                    showConfirmButton: false,
+                    timer: 2500
+                }).then((result) => {
+                    location.reload();
+                });
+            }
+        });
+
+    });
+    // << Subscribe to events
+</script>
