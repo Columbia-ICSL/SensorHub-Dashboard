@@ -27,6 +27,15 @@
                     window.location.href = '/';
                 });
             }
+            if (this_action === 'notification') {
+                swalWithBootstrapButtons.fire({
+                    icon: 'warning',
+                    title: 'Notification',
+                    text: data['alert'],
+                    showConfirmButton: true,
+                    timer: 2500
+                });
+            }
         });
 
     });

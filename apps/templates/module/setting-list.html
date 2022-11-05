@@ -1,3 +1,5 @@
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <div class="col">
     {% for sensor, setting in module['settings'].items() %}
         <div class="card card-body border-0 shadow mb-4">
@@ -7,19 +9,36 @@
                     <div class="col-md-6 mb-3">
                         <div>
                             <label for="{{ setting_name }}">{{ setting_name }}</label>
+                            {% if value == 'on' %}
+                            <!-- https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->
+                            <input name="{{ setting_name }}" type='hidden' value='off'>
+                                {% if setting_name == 'Directionality' %}
+                                <input name="{{ setting_name }}" type="checkbox" checked data-toggle="toggle" data-on="GreaterThan" data-off="SmallerThan" data-onstyle="warning" data-offstyle="info">
+                                {% else %}
+                                <input name="{{ setting_name }}" type="checkbox" checked data-toggle="toggle" data-onstyle="success">
+                                {% endif %}
+                            {% elif value == 'off' %}
+                            <input name="{{ setting_name }}" type='hidden' value='off'>
+                                {% if setting_name == 'Directionality' %}
+                                <input name="{{ setting_name }}" type="checkbox" data-toggle="toggle" data-on="GreaterThan" data-off="SmallerThan" data-onstyle="warning" data-offstyle="info">
+                                {% else %}
+                                <input name="{{ setting_name }}" type="checkbox" data-toggle="toggle" data-onstyle="success">
+                                {% endif %}
+                            {% else %}
                             <input class="form-control" name="{{ setting_name }}" type="text" value="{{ value }}"
                                    required>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
-{#                <div class="col-md-6 mb-3">#}
-{#                    <label for="gender">Select</label>#}
-{#                    <select class="form-select mb-0" id="gender" aria-label="Gender select example">#}
-{#                        <option selected>Select</option>#}
-{#                        <option value="1">1</option>#}
-{#                        <option value="2">2</option>#}
-{#                    </select>#}
-{#                </div>#}
+                <!-- <div class="col-md-6 mb-3">
+                    <label for="gender">Select</label>
+                    <select class="form-select mb-0" id="gender" aria-label="Gender select example">
+                        <option selected>Select</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div> -->
                 <div class="mt-3">
                     <button class="btn btn-gray-800 mt-2 animate-up-2" type="submit">Save</button>
                 </div>
