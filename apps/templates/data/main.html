@@ -3,7 +3,9 @@
 {% block title %} Data {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+{#  <link rel="stylesheet" href="{{url_for('static', filename='assets/css/listr.pack.css')}}">#}
+{% endblock stylesheets %}
 
 {% block content %}
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
@@ -16,6 +18,9 @@
                       </a>
                   </li>
                   <li class="breadcrumb-item active" aria-current="page">Data</li>
+                  {% for part in path.strip('/').split('/') %}
+                      <li class="breadcrumb-item"><a href="{{url_for('path_view', p='/'+path[:path.find(part)+part|length]+'/')}}"><strong>{{ part }}</strong></a></li>
+                  {% endfor %}
               </ol>
           </nav>
           <h2 class="h4">SensorHub Data</h2>
@@ -23,9 +28,92 @@
       </div>
   </div>
 
-  <iframe src="https://app.rawgraphs.io/" width="1000" height="1000"></iframe>
+{#  <iframe src="https://app.rawgraphs.io/" width="1000" height="1000"></iframe>#}
+  <div class="card card-body border-0 shadow table-wrapper table-responsive">
+      <table id="file-table" class="table table-hover">
+          <thead>
+              <tr>
+                  <th class="border-gray-200" onclick="sortTable(0)" style="cursor: pointer">Name</th>
+                  <th class="border-gray-200" onclick="sortTable(1)" style="cursor: pointer">Size</th>
+                  <th class="border-gray-200" onclick="sortTable(2)" style="cursor: pointer">Modified Time</th>
+              </tr>
+          </thead>
+          <tbody>
+              <!-- Item -->
+              {% for entry in contents if entry.type == 'file' %}
+              <tr>
+                  <td class="text-xs-left " data-sort-value="file-{{entry.name | lower}}">
+                  <a href="/file/{{entry.name}}" data-size="{{entry.size | size_fmt}}">{{entry.name}}</a>
+                  </td>
+                  <td class="text-xs-right " data-sort-value="{{entry.size}}" title="{{entry.size}} bytes">{{entry.size | size_fmt}}</td>
+                  <td class="text-xs-right " data-sort-value="{{entry.mtime}}" title="{{entry.mtime | time_fmt}}">{{entry.mtime | time_humanize}}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+      <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+          <div class="fw-normal small mt-4 mt-lg-0">{{total.dir}} folders and {{total.file}} files, {{total.size | size_fmt}} in total</div>
+      </div>
+  </div>
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("file-table");
+  switching = true;
+  // Set the sorting direction to ascending:
+  dir = "asc";
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      if (dir == "asc") {
+        if (x.getAttribute("data-sort-value") > y.getAttribute("data-sort-value")) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.getAttribute("data-sort-value") < y.getAttribute("data-sort-value")) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      // Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /* If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again. */
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+</script>
+{% endblock javascripts %}
