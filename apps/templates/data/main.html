@@ -43,7 +43,7 @@
               {% for entry in contents if entry.type == 'file' %}
               <tr>
                   <td class="text-xs-left " data-sort-value="file-{{entry.name | lower}}">
-                  <a href="/file/{{entry.name}}" data-size="{{entry.size | size_fmt}}">{{entry.name}}</a>
+                  <a href="/data/{{entry.name}}" data-size="{{entry.size | size_fmt}}">{{entry.name}}</a>
                   </td>
                   <td class="text-xs-right " data-sort-value="{{entry.size}}" title="{{entry.size}} bytes">{{entry.size | size_fmt}}</td>
                   <td class="text-xs-right " data-sort-value="{{entry.mtime}}" title="{{entry.mtime | time_fmt}}">{{entry.mtime | time_humanize}}</td>
