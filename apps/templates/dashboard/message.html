@@ -6,6 +6,26 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+    <script src="/static/assets/vendor/sweetalert2/dist/sweetalert2.all.min.js"></script>
+    <script>
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-gray'
+            },
+            buttonsStyling: false
+        });
+
+        $(document).ready(function() {
+            swalWithBootstrapButtons.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: '{{ message }}',
+                    showConfirmButton: true,
+                    timer: 15000
+            });
+        });
+    </script>
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
