@@ -44,6 +44,7 @@
                   <th class="border-gray-200" onclick="sortTable(0)" style="cursor: pointer">Name</th>
                   <th class="border-gray-200" onclick="sortTable(1)" style="cursor: pointer">Size</th>
                   <th class="border-gray-200" onclick="sortTable(2)" style="cursor: pointer">Modified Time</th>
+                  <th class="border-gray-200">Options</th>
               </tr>
           </thead>
           <tbody>
@@ -55,6 +56,18 @@
                   </td>
                   <td class="text-xs-right " data-sort-value="{{entry.size}}" title="{{entry.size}} bytes">{{entry.size | size_fmt}}</td>
                   <td class="text-xs-right " data-sort-value="{{entry.mtime}}" title="{{entry.mtime | time_fmt}}">{{entry.mtime | time_humanize}}</td>
+                  <td>
+                    <!-- Add a download button -->
+                    <a href="/data/{{entry.name}}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                      <img class="icon icon-xxs me-2" alt="Download icon" src="/static/assets/img/download.svg">
+                      Download
+                    </a>
+                    <!-- Add a delete button -->
+                    <a href="/delete_data/{{entry.name}}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                      <img class="icon icon-xxs me-2" alt="Download icon" src="/static/assets/img/trash.svg">
+                      Delete
+                    </a>
+                  </td>
               </tr>
               {% endfor %}
           </tbody>
